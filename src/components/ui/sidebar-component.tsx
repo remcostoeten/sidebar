@@ -33,6 +33,58 @@ import {
   Integration,
 } from "@carbon/icons-react";
 
+/** ======================= Top-Level Configuration ======================= */
+
+// Sidebar visibility and behavior configuration
+const SIDEBAR_CONFIG = {
+  // Visibility settings
+  SHOW_DETAIL_SIDEBAR: true,        // Show/hide the collapsible detail sidebar
+  DEFAULT_OPEN: true,               // Start with sidebar open (true) or closed (false)
+
+  // Search functionality
+  SHOW_SEARCH: true,                // Show search button in icon navigation
+  AUTOFOCUS_SEARCH: false,          // Auto-focus search when sidebar opens
+
+  // Animation settings
+  ANIMATION_DURATION: 500,           // Animation duration in milliseconds
+  ENABLE_ANIMATIONS: true,          // Enable/disable animations globally
+
+  // Layout settings
+  SIDEBAR_WIDTH: 320,               // Width of the detail sidebar in pixels
+  COLLAPSED_WIDTH: 40,              // Width when fully collapsed (icons only)
+  NAVIGATION_WIDTH: 64,             // Width of the icon navigation rail
+
+  // Keyboard shortcuts
+  KEYBOARD_SHORTCUTS: {
+    TOGGLE_SIDEBAR: 'b',             // Key to toggle sidebar (with modifier)
+    SEARCH_SHORTCUT: 'k',            // Key to trigger search (with modifier)
+    MODIFIER_KEY: 'metaKey',        // 'metaKey' for Mac, 'ctrlKey' for Windows/Linux
+  },
+
+  // UI behavior
+  SHOW_TOOLTIPS: true,               // Show tooltips on hover
+  SHOW_BRAND_LOGO: true,             // Show brand logo in detail sidebar
+  SHOW_USER_PROFILE: true,           // Show user profile section
+  AUTO_COLLAPSE: false,              // Auto-collapse sidebar when clicking outside
+  PERSIST_STATE: true,               // Persist sidebar state in localStorage
+
+  // Content filtering
+  HIDE_SECTIONS: [],                 // Array of section IDs to hide (e.g., ['analytics', 'files'])
+  DEFAULT_SECTION: 'dashboard',      // Default active section when component loads
+
+  // Advanced settings
+  ENABLE_KEYBOARD_NAV: true,         // Enable keyboard navigation
+  SHOW_SECTION_DIVIDERS: true,       // Show visual dividers between sections
+  HIGHLIGHT_ACTIVE_ITEM: true,       // Highlight the currently active menu item
+} as const;
+
+// Animation easing constants
+const ANIMATION = {
+  SPRING_EASING: "cubic-bezier(0.25, 1.1, 0.4, 1)",
+  SPRING_IN: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+  STANDARD_EASING: "cubic-bezier(0.4, 0, 0.2, 1)",
+} as const;
+
 /** ======================= Local SVG paths (inline) ======================= */
 const svgPaths = {
   p10dcabc0: "M8 11L3 6.00001L3.7 5.30001L8 9.60001L12.3 5.30001L13 6.00001L8 11Z",
@@ -63,8 +115,6 @@ const svgPaths = {
 };
 /** ======================================================================= */
 
-// Softer spring animation curve
-const softSpringEasing = "cubic-bezier(0.25, 1.1, 0.4, 1)";
 
 /* ----------------------------- Brand / Logos ----------------------------- */
 
@@ -92,7 +142,7 @@ function BrandBadge() {
           <InterfacesLogoSquare />
         </div>
         <div className="px-2 py-1">
-          <div className="font-['Lexend:SemiBold',_sans-serif] text-[16px] text-neutral-50">
+          <div className="font-['Lexend:SemiBold',sans-serif] text-[16px] text-neutral-50">
             Interfaces
           </div>
         </div>
@@ -127,19 +177,19 @@ function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
       className={`relative shrink-0 transition-all duration-500 ${
         isCollapsed ? "w-full flex justify-center" : "w-full"
       }`}
-      style={{ transitionTimingFunction: softSpringEasing }}
+      style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
     >
       <div
         className={`bg-black h-10 relative rounded-lg flex items-center transition-all duration-500 ${
           isCollapsed ? "w-10 min-w-10 justify-center" : "w-full"
         }`}
-        style={{ transitionTimingFunction: softSpringEasing }}
+        style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
       >
         <div
           className={`flex items-center justify-center shrink-0 transition-all duration-500 ${
             isCollapsed ? "p-1" : "px-1"
           }`}
-          style={{ transitionTimingFunction: softSpringEasing }}
+          style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
         >
           <div className="size-8 flex items-center justify-center">
             <SearchIcon size={16} className="text-neutral-50" />
@@ -150,7 +200,7 @@ function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
           className={`flex-1 relative transition-opacity duration-500 overflow-hidden ${
             isCollapsed ? "opacity-0 w-0" : "opacity-100"
           }`}
-          style={{ transitionTimingFunction: softSpringEasing }}
+          style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
         >
           <div className="flex flex-col justify-center size-full">
             <div className="flex flex-col gap-2 items-start justify-center pr-2 py-1 w-full">
@@ -159,7 +209,7 @@ function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
                 placeholder="Search..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className="w-full bg-transparent border-none outline-none font-['Lexend:Regular',_sans-serif] text-[14px] text-neutral-50 placeholder:text-neutral-400 leading-[20px]"
+                className="w-full bg-transparent border-none outline-none font-['Lexend:Regular',sans-serif] text-[14px] text-neutral-50 placeholder:text-neutral-400 leading-[20px]"
                 tabIndex={isCollapsed ? -1 : 0}
               />
             </div>
@@ -603,7 +653,7 @@ const IconNavButton = memo(function IconNavButton({
         type="button"
         className={`flex items-center justify-center rounded-lg size-10 min-w-10 transition-colors duration-500
           ${isActive ? "bg-neutral-800 text-neutral-50" : "hover:bg-neutral-800 text-neutral-400 hover:text-neutral-300"}`}
-        style={{ transitionTimingFunction: softSpringEasing }}
+        style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
         onClick={onClick}
       >
         {children}
@@ -649,19 +699,21 @@ const IconNavigation = memo(function IconNavigation({
         </div>
       </div>
 
-      {/* Search Button (hidden by feature flag via page-level control) */}
-      <IconNavButton onClick={onSearchClick} tooltip="Search (⌘K)">
-        <SearchIcon size={16} />
-      </IconNavButton>
+      {/* Search Button - controlled by configuration */}
+      {SIDEBAR_CONFIG.SHOW_SEARCH && (
+        <IconNavButton onClick={onSearchClick} tooltip="Search (⌘K)">
+          <SearchIcon size={16} />
+        </IconNavButton>
+      )}
 
       {/* Navigation Icons */}
       <div className="flex flex-col gap-2 w-full items-center">
-        {navItems.map((item) => (
+        {navItems.filter(item => !SIDEBAR_CONFIG.HIDE_SECTIONS.includes(item.id)).map((item) => (
           <IconNavButton
             key={item.id}
             isActive={activeSection === item.id}
             onClick={() => onSectionChange(item.id)}
-            tooltip={item.tooltip}
+            tooltip={SIDEBAR_CONFIG.SHOW_TOOLTIPS ? item.tooltip : undefined}
           >
             {item.icon}
           </IconNavButton>
@@ -698,17 +750,21 @@ const IconNavigation = memo(function IconNavigation({
 
       {/* Bottom section */}
       <div className="flex flex-col gap-2 w-full items-center">
-        <IconNavButton isActive={activeSection === "settings"} onClick={() => onSectionChange("settings")} tooltip="Settings">
+        <IconNavButton isActive={activeSection === "settings"} onClick={() => onSectionChange("settings")} tooltip={SIDEBAR_CONFIG.SHOW_TOOLTIPS ? "Settings" : undefined}>
           <SettingsIcon size={16} />
         </IconNavButton>
-        <div className="relative group">
-          <div className="size-8">
-            <AvatarCircle />
+        {SIDEBAR_CONFIG.SHOW_USER_PROFILE && (
+          <div className="relative group">
+            <div className="size-8">
+              <AvatarCircle />
+            </div>
+            {SIDEBAR_CONFIG.SHOW_TOOLTIPS && (
+              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-neutral-900 text-neutral-100 text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 border border-neutral-700">
+                Profile
+              </div>
+            )}
           </div>
-          <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-neutral-900 text-neutral-100 text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 border border-neutral-700">
-            Profile
-          </div>
-        </div>
+        )}
       </div>
     </aside>
   );
@@ -727,12 +783,12 @@ function SectionTitle({
 }) {
   if (isCollapsed) {
     return (
-      <div className="w-full flex justify-center transition-all duration-500" style={{ transitionTimingFunction: softSpringEasing }}>
+      <div className="w-full flex justify-center transition-all duration-500" style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}>
         <button
           type="button"
           onClick={onToggleCollapse}
           className="flex items-center justify-center rounded-lg size-10 min-w-10 transition-all duration-500 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-300"
-          style={{ transitionTimingFunction: softSpringEasing }}
+          style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
           aria-label="Expand sidebar"
         >
           <span className="inline-block rotate-180">
@@ -744,11 +800,11 @@ function SectionTitle({
   }
 
   return (
-    <div className="w-full overflow-hidden transition-all duration-500" style={{ transitionTimingFunction: softSpringEasing }}>
+    <div className="w-full overflow-hidden transition-all duration-500" style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center h-10">
           <div className="px-2 py-1">
-            <div className="font-['Lexend:SemiBold',_sans-serif] text-[18px] text-neutral-50 leading-[27px]">
+            <div className="font-['Lexend:SemiBold',sans-serif] text-[18px] text-neutral-50 leading-[27px]">
               {title}
             </div>
           </div>
@@ -786,7 +842,7 @@ const DetailSidebar = memo(function DetailSidebar({ activeSection, isVisible }: 
         transitionProperty: "width, padding"
       }}
     >
-      {isVisible && !isCollapsed && <BrandBadge />}
+      {isVisible && !isCollapsed && SIDEBAR_CONFIG.SHOW_BRAND_LOGO && <BrandBadge />}
 
       {isVisible && (
         <>
@@ -800,7 +856,7 @@ const DetailSidebar = memo(function DetailSidebar({ activeSection, isVisible }: 
           className={`flex flex-col w-full overflow-y-auto transition-all duration-500 ${
             isCollapsed ? "gap-2 items-center" : "gap-4 items-start"
           }`}
-          style={{ transitionTimingFunction: softSpringEasing }}
+          style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
         >
           {content.sections.map((section, index) => (
             <MenuSection
@@ -814,11 +870,11 @@ const DetailSidebar = memo(function DetailSidebar({ activeSection, isVisible }: 
         </div>
       )}
 
-      {isVisible && !isCollapsed && (
+      {isVisible && !isCollapsed && SIDEBAR_CONFIG.SHOW_USER_PROFILE && (
         <div className="w-full mt-auto pt-2 border-t border-neutral-800">
           <div className="flex items-center gap-2 px-2 py-2">
             <AvatarCircle />
-            <div className="font-['Lexend:Regular',_sans-serif] text-[14px] text-neutral-50">Text content</div>
+            <div className="font-['Lexend:Regular',sans-serif] text-[14px] text-neutral-50">Text content</div>
             <button
               type="button"
               className="ml-auto size-8 rounded-md flex items-center justify-center hover:bg-neutral-800"
@@ -862,13 +918,13 @@ function MenuItem({
       className={`relative shrink-0 transition-all duration-500 ${
         isCollapsed ? "w-full flex justify-center" : "w-full"
       }`}
-      style={{ transitionTimingFunction: softSpringEasing }}
+      style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
     >
       <div
         className={`rounded-lg cursor-pointer transition-all duration-500 flex items-center relative ${
           item.isActive ? "bg-neutral-800" : "hover:bg-neutral-800"
         } ${isCollapsed ? "w-10 min-w-10 h-10 justify-center p-4" : "w-full h-10 px-4 py-2"}`}
-        style={{ transitionTimingFunction: softSpringEasing }}
+        style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
         onClick={handleClick}
         title={isCollapsed ? item.label : undefined}
       >
@@ -878,9 +934,9 @@ function MenuItem({
           className={`flex-1 relative transition-opacity duration-500 overflow-hidden ${
             isCollapsed ? "opacity-0 w-0" : "opacity-100 ml-3"
           }`}
-          style={{ transitionTimingFunction: softSpringEasing }}
+          style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
         >
-          <div className="font-['Lexend:Regular',_sans-serif] text-[14px] text-neutral-50 leading-[20px] truncate">
+          <div className="font-['Lexend:Regular',sans-serif] text-[14px] text-neutral-50 leading-[20px] truncate">
             {item.label}
           </div>
         </div>
@@ -890,13 +946,13 @@ function MenuItem({
             className={`flex items-center justify-center shrink-0 transition-opacity duration-500 ${
               isCollapsed ? "opacity-0 w-0" : "opacity-100 ml-2"
             }`}
-            style={{ transitionTimingFunction: softSpringEasing }}
+            style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
           >
             <ChevronDownIcon
               size={16}
               className="text-neutral-50 transition-transform duration-500"
               style={{
-                transitionTimingFunction: softSpringEasing,
+                transitionTimingFunction: ANIMATION.SPRING_EASING,
                 transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
               }}
             />
@@ -909,13 +965,13 @@ function MenuItem({
 
 function SubMenuItem({ item, onItemClick }: { item: MenuItemT; onItemClick?: () => void }) {
   return (
-    <div className="w-full pl-9 pr-1 py-[1px]">
+    <div className="w-full pl-9 pr-1 py-px">
       <div
         className="h-10 w-full rounded-lg cursor-pointer transition-colors hover:bg-neutral-800 flex items-center px-3 py-1"
         onClick={onItemClick}
       >
         <div className="flex-1 min-w-0">
-          <div className="font-['Lexend:Regular',_sans-serif] text-[14px] text-neutral-300 leading-[18px] truncate">
+          <div className="font-['Lexend:Regular',sans-serif] text-[14px] text-neutral-300 leading-[18px] truncate">
             {item.label}
           </div>
         </div>
@@ -941,10 +997,10 @@ function MenuSection({
         className={`relative shrink-0 w-full transition-all duration-500 overflow-hidden ${
           isCollapsed ? "h-0 opacity-0" : "h-10 opacity-100"
         }`}
-        style={{ transitionTimingFunction: softSpringEasing }}
+        style={{ transitionTimingFunction: ANIMATION.SPRING_EASING }}
       >
         <div className="flex items-center h-10 px-4">
-          <div className="font-['Lexend:Regular',_sans-serif] text-[14px] text-neutral-400">
+          <div className="font-['Lexend:Regular',sans-serif] text-[14px] text-neutral-400">
             {section.title}
           </div>
         </div>
@@ -982,25 +1038,10 @@ function MenuSection({
 
 /* --------------------------------- Layout -------------------------------- */
 
-// Keyboard shortcut constants
-const KEYBOARD_SHORTCUT = {
-  TOGGLE_SIDEBAR: 'b',
-  MODIFIER_KEY: 'metaKey' // Use 'ctrlKey' for Windows/Linux, 'metaKey' for Mac
-};
-
-// Sidebar default state
-const SIDEBAR_DEFAULT_STATE = {
-  IS_OPEN: true, // Set to false to start with sidebar closed
-};
-
-// Sidebar configuration
-const SIDEBAR_CONFIG = {
-  SHOW_DETAIL_SIDEBAR: true, // Set to true to show the collapsible detail sidebar
-};
 
 const TwoLevelSidebar = memo(function TwoLevelSidebar({ onSearchClick }: { onSearchClick?: () => void }) {
-  const [activeSection, setActiveSection] = useState("dashboard");
-  const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(SIDEBAR_DEFAULT_STATE.IS_OPEN);
+  const [activeSection, setActiveSection] = useState<string>(SIDEBAR_CONFIG.DEFAULT_SECTION);
+  const [isRightSidebarVisible, setIsRightSidebarVisible] = useState<boolean>(SIDEBAR_CONFIG.DEFAULT_OPEN);
 
   const toggleRightSidebar = useCallback(() => {
     setIsRightSidebarVisible(prev => !prev);
@@ -1012,11 +1053,11 @@ const TwoLevelSidebar = memo(function TwoLevelSidebar({ onSearchClick }: { onSea
 
   // Keyboard event handler - only active if detail sidebar is enabled
   useEffect(() => {
-    if (!SIDEBAR_CONFIG.SHOW_DETAIL_SIDEBAR) return;
+    if (!SIDEBAR_CONFIG.SHOW_DETAIL_SIDEBAR || !SIDEBAR_CONFIG.ENABLE_KEYBOARD_NAV) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Early return for non-target keys
-      if (event.key.toLowerCase() !== KEYBOARD_SHORTCUT.TOGGLE_SIDEBAR) return;
+      if (event.key.toLowerCase() !== SIDEBAR_CONFIG.KEYBOARD_SHORTCUTS.TOGGLE_SIDEBAR) return;
       if (!(event.ctrlKey || event.metaKey)) return;
       
       event.preventDefault();
