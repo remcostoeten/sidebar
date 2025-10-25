@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import {
   Search as SearchIcon,
   Dashboard,
@@ -586,7 +586,7 @@ function getSidebarContent(activeSection: string): SidebarContent {
 
 /* ---------------------------- Left Icon Nav Rail -------------------------- */
 
-function IconNavButton({
+const IconNavButton = memo(function IconNavButton({
   children,
   isActive = false,
   onClick,
@@ -615,9 +615,9 @@ function IconNavButton({
       )}
     </div>
   );
-}
+});
 
-function IconNavigation({
+const IconNavigation = memo(function IconNavigation({
   activeSection,
   onSectionChange,
   isRightSidebarVisible,
@@ -628,7 +628,7 @@ function IconNavigation({
   isRightSidebarVisible: boolean;
   onToggleRightSidebar: () => void;
 }) {
-  const navItems = [
+  const navItems = useMemo(() => [
     { id: "dashboard", icon: <Dashboard size={16} />, label: "Dashboard", tooltip: "Dashboard" },
     { id: "tasks", icon: <Task size={16} />, label: "Tasks", tooltip: "Tasks" },
     { id: "projects", icon: <Folder size={16} />, label: "Projects", tooltip: "Projects" },
@@ -636,7 +636,7 @@ function IconNavigation({
     { id: "teams", icon: <UserMultiple size={16} />, label: "Teams", tooltip: "Teams" },
     { id: "analytics", icon: <Analytics size={16} />, label: "Analytics", tooltip: "Analytics" },
     { id: "files", icon: <DocumentAdd size={16} />, label: "Files", tooltip: "Files" },
-  ];
+  ], []);
 
   return (
     <aside className="bg-black flex flex-col gap-2 items-center p-4 w-16 h-screen border-r border-neutral-800 rounded-l-2xl">
@@ -705,7 +705,7 @@ function IconNavigation({
       </div>
     </aside>
   );
-}
+});
 
 /* ------------------------------ Right Sidebar ----------------------------- */
 
@@ -745,27 +745,16 @@ function SectionTitle({
               {title}
             </div>
           </div>
-        </div>
-        <div className="pr-1">
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            className="flex items-center justify-center rounded-lg size-10 min-w-10 transition-all duration-500 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-300"
-            style={{ transitionTimingFunction: softSpringEasing }}
-            aria-label="Collapse sidebar"
-          >
-            <ChevronDownIcon size={16} className="-rotate-90" />
-          </button>
-        </div>
-      </div>
-    </div>
+          </div>
+          </div>
+          </div>
   );
 }
 
-function DetailSidebar({ activeSection, isVisible }: { activeSection: string; isVisible: boolean }) {
+const DetailSidebar = memo(function DetailSidebar({ activeSection, isVisible }: { activeSection: string; isVisible: boolean }) {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const content = getSidebarContent(activeSection);
+  const content = useMemo(() => getSidebarContent(activeSection), [activeSection]);
 
   const toggleExpanded = (itemKey: string) => {
     setExpandedItems((prev) => {
@@ -839,7 +828,7 @@ function DetailSidebar({ activeSection, isVisible }: { activeSection: string; is
       )}
     </aside>
   );
-}
+});
 
 /* ------------------------------ Menu Elements ---------------------------- */
 
@@ -1002,28 +991,33 @@ const SIDEBAR_CONFIG = {
   SHOW_DETAIL_SIDEBAR: true, // Set to true to show the collapsible detail sidebar
 };
 
-function TwoLevelSidebar() {
+const TwoLevelSidebar = memo(function TwoLevelSidebar() {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(SIDEBAR_DEFAULT_STATE.IS_OPEN);
 
-  const toggleRightSidebar = () => {
+  const toggleRightSidebar = useCallback(() => {
     setIsRightSidebarVisible(prev => !prev);
-  };
+  }, []);
+
+  const handleSectionChange = useCallback((section: string) => {
+    setActiveSection(section);
+  }, []);
 
   // Keyboard event handler - only active if detail sidebar is enabled
   useEffect(() => {
     if (!SIDEBAR_CONFIG.SHOW_DETAIL_SIDEBAR) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Check for Ctrl/Cmd + B
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === KEYBOARD_SHORTCUT.TOGGLE_SIDEBAR) {
-        event.preventDefault();
-        toggleRightSidebar();
-      }
+      // Early return for non-target keys
+      if (event.key.toLowerCase() !== KEYBOARD_SHORTCUT.TOGGLE_SIDEBAR) return;
+      if (!(event.ctrlKey || event.metaKey)) return;
+      
+      event.preventDefault();
+      toggleRightSidebar();
     };
 
-    // Add event listener
-    document.addEventListener('keydown', handleKeyDown);
+    // Add event listener with passive: false for preventDefault
+    document.addEventListener('keydown', handleKeyDown, { passive: false });
 
     // Cleanup
     return () => {
@@ -1035,7 +1029,7 @@ function TwoLevelSidebar() {
     <div className="flex flex-row">
       <IconNavigation 
         activeSection={activeSection} 
-        onSectionChange={setActiveSection}
+        onSectionChange={handleSectionChange}
         isRightSidebarVisible={isRightSidebarVisible}
         onToggleRightSidebar={toggleRightSidebar}
       />
@@ -1047,16 +1041,16 @@ function TwoLevelSidebar() {
       )}
     </div>
   );
-}
+});
 
 /* ------------------------------- Root Frame ------------------------------ */
 
-export function Frame760() {
+export const Frame760 = memo(function Frame760() {
   return (
     <div className="bg-[#1a1a1a] h-screen">
       <TwoLevelSidebar />
     </div>
   );
-}
+});
 
 export default Frame760;
