@@ -622,11 +622,13 @@ const IconNavigation = memo(function IconNavigation({
   onSectionChange,
   isRightSidebarVisible,
   onToggleRightSidebar,
+  onSearchClick,
 }: {
   activeSection: string;
   onSectionChange: (section: string) => void;
   isRightSidebarVisible: boolean;
   onToggleRightSidebar: () => void;
+  onSearchClick?: () => void;
 }) {
   const navItems = useMemo(() => [
     { id: "dashboard", icon: <Dashboard size={16} />, label: "Dashboard", tooltip: "Dashboard" },
@@ -646,6 +648,11 @@ const IconNavigation = memo(function IconNavigation({
           <InterfacesLogoSquare />
         </div>
       </div>
+
+      {/* Search Button (hidden by feature flag via page-level control) */}
+      <IconNavButton onClick={onSearchClick} tooltip="Search (⌘K)">
+        <SearchIcon size={16} />
+      </IconNavButton>
 
       {/* Navigation Icons */}
       <div className="flex flex-col gap-2 w-full items-center">
@@ -991,7 +998,7 @@ const SIDEBAR_CONFIG = {
   SHOW_DETAIL_SIDEBAR: true, // Set to true to show the collapsible detail sidebar
 };
 
-const TwoLevelSidebar = memo(function TwoLevelSidebar() {
+const TwoLevelSidebar = memo(function TwoLevelSidebar({ onSearchClick }: { onSearchClick?: () => void }) {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(SIDEBAR_DEFAULT_STATE.IS_OPEN);
 
@@ -1032,6 +1039,7 @@ const TwoLevelSidebar = memo(function TwoLevelSidebar() {
         onSectionChange={handleSectionChange}
         isRightSidebarVisible={isRightSidebarVisible}
         onToggleRightSidebar={toggleRightSidebar}
+        onSearchClick={onSearchClick}
       />
       {SIDEBAR_CONFIG.SHOW_DETAIL_SIDEBAR && (
         <DetailSidebar 
@@ -1045,6 +1053,14 @@ const TwoLevelSidebar = memo(function TwoLevelSidebar() {
 
 /* ------------------------------- Root Frame ------------------------------ */
 
+export const Sidebar = memo(function Sidebar({ onSearchClick }: { onSearchClick?: () => void }) {
+  return (
+    <div className="bg-black h-screen">
+      <TwoLevelSidebar onSearchClick={onSearchClick} />
+    </div>
+  );
+});
+
 export const Frame760 = memo(function Frame760() {
   return (
     <div className="bg-[#1a1a1a] h-screen">
@@ -1053,4 +1069,4 @@ export const Frame760 = memo(function Frame760() {
   );
 });
 
-export default Frame760;
+export default Sidebar;

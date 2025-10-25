@@ -1,5 +1,29 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Features
+
+### Command Palette (Global Search Menu)
+
+A modern, keyboard-driven command palette/search menu similar to Vercel, Linear, and VS Code.
+
+**How to use:**
+- Press `⌘K` (Mac) or `Ctrl+K` (Windows/Linux) to open the search menu
+- Click the search icon in the left sidebar
+- Type to filter through pages, settings, and actions
+- Use arrow keys to navigate
+- Press Enter to select an item
+- Press Escape to close
+
+**Features:**
+- Fast keyboard navigation with ⌘K / Ctrl+K shortcut
+- Real-time search filtering
+- Categorized results (Pages, Settings, Actions)
+- Click to open functionality
+- Beautiful dark mode UI with smooth animations
+- Fake data included for demonstration
+
+The command palette is implemented in `components/ui/command-palette.tsx` and is fully integrated with the sidebar.
+
 ## Getting Started
 
 First, run the development server:
